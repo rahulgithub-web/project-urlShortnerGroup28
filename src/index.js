@@ -7,7 +7,6 @@ const app = express();
 app.use(bodyParser.json());
 
 let url = "mongodb+srv://urlShortner:YEJsATs3xmNKbsi3@cluster0.1gmi2hm.mongodb.net/group28Database"
-
 let port = process.env.PORT || 3000; 
 
 mongoose.connect(url, {useNewUrlParser: true})
