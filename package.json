@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sabihak89/radon.git"
+    "url": "https://github.com/rahulgithub-web/project-urlShortnerGroup28/tree/project/url_shortner"
   },
   "keywords": [],
   "author": "",
@@ -16,14 +16,13 @@
   "bugs": {
     "url": "https://github.com/sabihak89/radon/issues"
   },
-  "homepage": "https://github.com/sabihak89/radon#readme",
+  "homepage": "https://github.com/rahulgithub-web/project-urlShortnerGroup28/blob/project/url_shortner/README.md",
   "dependencies": {
     "body-parser": "^1.20.0",
     "express": "^4.18.1",
     "mongoose": "^6.4.4",
     "node-modules": "^1.0.1",
     "nodemon": "^2.0.19",
-    "shortid": "^2.2.16",
-    "valid-url": "^1.0.9"
+    "shortid": "^2.2.16"
   }
 }
