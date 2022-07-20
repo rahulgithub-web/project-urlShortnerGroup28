@@ -1,7 +1,35 @@
 const urlModel = require("../models/urlModel");
 const shortid = require("shortid");
+const redis = require("redis");
 
-// ===========> Create Url <=================
+const { promisify } = require("util");
+
+// =========> Connect to Redis <============
+const redisClient = redis.createClient(
+  11230,
+  "redis-11230.c264.ap-south-1-1.ec2.cloud.redislabs.com",
+  { no_ready_check: true }
+);
+redisClient.auth(
+  "6NR1xH1btGGwgh2Zq8b0FLyRpLF979Op",
+  function (err) {
+    if (err) throw err;
+  }
+);
+
+redisClient.on("connect", async function () {
+  console.log("Connected to Redis...");
+});
+
+// 1.connect to server 
+// 2. use the commands 
+
+// Connection setup for Redis  
+
+const SET_ASYNC = promisify(redisClient.SET).bind(redisClient); 
+const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
+
+// ===========> Create Short Url <=================
 const createUrl = async function (req, res) {
   try {
     let data = req.body;
@@ -60,18 +88,22 @@ const createUrl = async function (req, res) {
 // ============> Get Url Api <====================
 const getUrl = async function (req, res) {
   try {
-    let shortUrl = req.params.urlCode;
+    let urlCode = req.params.urlCode;
 
-    if (!shortUrl) {
+    let cachedUrlData = await GET_ASYNC(`$(urlCode)`);
+
+    if (!urlCode) {
       return res
         .status(400)
-        .send({ status: false, message: "urlCoder must be present" });
+        .send({ status: false, message: "urlCode must be present" });
     }
-    let getUrl = await urlModel.findOne({ urlCode: shortUrl });
-    // console.log(getUrl);
+    let getUrl = await urlModel.findOne({ urlCode: urlCode });
+    // await SET_ASYNC(`${urlCode}`, JSON.stringify(getUrl));
+    console.log(getUrl);
     if (getUrl) {
-      return res.status(302).redirect(getUrl.longUrl);
+      return res.status(302).redirect(getUrl);
     } else {
+      await SET_ASYNC(`${cachedUrlData}`, JSON.stringify(getUrl));
       return res
         .status(400)
         .send({ status: false, message: "Invalid urlCode" });
