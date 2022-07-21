@@ -52,11 +52,11 @@ const createUrl = async function (req, res) {
         .status(400)
         .send({ status: false, message: "Please provide valid Url" });
 
-    let checkUrl = await urlModel.find({ longUrl });
-    if (checkUrl.length != 0) {
+    let checkUrl = await urlModel.findOne({ longUrl }).select({longUrl:1,shortUrl:1,urlCode:1});
+    if (checkUrl) {
       return res
-        .status(400)
-        .send({ status: false, message: "Url already shorted" });
+        .status(200)
+        .send({ status: false, message: "Url already shorted", data: checkUrl });
     }
 
     let baseUrl = "http://localhost:3000";
@@ -75,6 +75,7 @@ const createUrl = async function (req, res) {
       .findOne({ _id: savedUrl._id })
       .select({ __v: 0, createdAt: 0, updatedAt: 0, _id: 0 });
 
+      await SET_ASYNC(`${longUrl}`, JSON.stringify(finalUrl));
     return res.status(201).send({
       status: true,
       message: "shortUrl has been created successfully",
@@ -90,20 +91,23 @@ const getUrl = async function (req, res) {
   try {
     let urlCode = req.params.urlCode;
 
-    let cachedUrlData = await GET_ASYNC(`$(urlCode)`);
+    let cachedUrl = await GET_ASYNC(`$(urlCode)`);
+    // console.log(cachedUrl);
 
     if (!urlCode) {
       return res
         .status(400)
         .send({ status: false, message: "urlCode must be present" });
     }
+    if(cachedUrl) {
+      return res.status(302).redirect(cachedUrl);
+    } 
     let getUrl = await urlModel.findOne({ urlCode: urlCode });
-    // await SET_ASYNC(`${urlCode}`, JSON.stringify(getUrl));
-    console.log(getUrl);
+    // console.log(getUrl);
     if (getUrl) {
-      return res.status(302).redirect(getUrl);
+      return res.status(302).redirect(getUrl.longUrl);
     } else {
-      await SET_ASYNC(`${cachedUrlData}`, JSON.stringify(getUrl));
+      await SET_ASYNC(`${cachedUrl}`, JSON.stringify(getUrl));
       return res
         .status(400)
         .send({ status: false, message: "Invalid urlCode" });
