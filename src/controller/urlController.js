@@ -38,7 +38,7 @@ const createUrl = async function (req, res) {
     if (Object.keys(data).length == 0) {
       return res
         .status(400)
-        .send({ status: false, message: "All fields are mendatory" });
+        .send({ status: false, message: "All fields are mandatory" });
     }
     if (!longUrl) {
       return res
@@ -53,6 +53,7 @@ const createUrl = async function (req, res) {
         .send({ status: false, message: "Please provide valid Url" });
 
     let checkUrl = await urlModel.findOne({ longUrl }).select({longUrl:1,shortUrl:1,urlCode:1});
+
     if (checkUrl) {
       return res
         .status(200)
@@ -92,7 +93,6 @@ const getUrl = async function (req, res) {
     let urlCode = req.params.urlCode;
 
     let cachedUrl = await GET_ASYNC(`$(urlCode)`);
-    // console.log(cachedUrl);
 
     if (!urlCode) {
       return res
@@ -103,7 +103,7 @@ const getUrl = async function (req, res) {
       return res.status(302).redirect(cachedUrl);
     } 
     let getUrl = await urlModel.findOne({ urlCode: urlCode });
-    // console.log(getUrl);
+
     if (getUrl) {
       return res.status(302).redirect(getUrl.longUrl);
     } else {
